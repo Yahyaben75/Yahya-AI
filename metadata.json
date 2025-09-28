@@ -1,0 +1,5 @@
+{
+  "name": "YAHYA AI",
+  "description": "An intuitive web application that uses AI to edit your photos based on simple text prompts. Upload an image, describe your changes, and let the AI work its magic.",
+  "requestFramePermissions": []
+}
