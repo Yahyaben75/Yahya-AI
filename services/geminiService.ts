@@ -20,7 +20,7 @@ export const fileToBase64 = (file: File): Promise<string> => {
 export const editImage = async (base64ImageData: string, mimeType: string, prompt: string): Promise<EditResult> => {
     try {
         const response: GenerateContentResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image-preview',
+            model: 'gemini-2.5-flash-image',
             contents: {
                 parts: [
                     {
@@ -60,6 +60,34 @@ export const editImage = async (base64ImageData: string, mimeType: string, promp
         return { imageUrl, text };
     } catch (error) {
         console.error("Error editing image:", error);
+        if (error instanceof Error) {
+            throw new Error(`Failed to communicate with the Gemini API: ${error.message}`);
+        }
+        throw new Error("An unknown error occurred while communicating with the Gemini API.");
+    }
+};
+
+export const generateImage = async (prompt: string): Promise<EditResult> => {
+    try {
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
+            config: {
+                numberOfImages: 1,
+                outputMimeType: 'image/png',
+            },
+        });
+
+        if (!response.generatedImages || response.generatedImages.length === 0) {
+            throw new Error("API did not return any images.");
+        }
+
+        const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
+        const imageUrl = `data:image/png;base64,${base64ImageBytes}`;
+
+        return { imageUrl, text: null };
+    } catch (error) {
+        console.error("Error generating image:", error);
         if (error instanceof Error) {
             throw new Error(`Failed to communicate with the Gemini API: ${error.message}`);
         }
